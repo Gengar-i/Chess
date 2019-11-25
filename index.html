@@ -8,12 +8,58 @@
     <meta name="keywords" content="HTML,CSS,JavaScript">
     <meta name="author" content="Robert Swoboda">
     <link rel="icon" href="./favicon.ico">
-    <link rel="stylesheet" href="./style.css" type="text/css">
+    <link rel="stylesheet" href="style.css" type="text/css">
     <title>Chess</title>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
 
-    <script src="./canvas.js"></script>
+    <div id="main">
+        <div class="content">
+            <div class="top">
+                <div class="box-width-updown">A</div>
+                <div class="box-width-updown">B</div>
+                <div class="box-width-updown">C</div>
+                <div class="box-width-updown">D</div>
+                <div class="box-width-updown">E</div>
+                <div class="box-width-updown">F</div>
+                <div class="box-width-updown">G</div>
+                <div class="box-width-updown">H</div>
+            </div>
+                <div class="middle">
+                    <div class="left">
+                        <div class="box-height">1</div>
+                        <div class="box-height">2</div>
+                        <div class="box-height">3</div>
+                        <div class="box-height">4</div>
+                        <div class="box-height">5</div>
+                        <div class="box-height">6</div>
+                        <div class="box-height">7</div>
+                        <div class="box-height">8</div>
+                    </div>
+                    <canvas id="canvas" width="810px" height="810px"></canvas>
+                    <div class="right">
+                        <div class="box-height-updown">1</div>
+                        <div class="box-height-updown">2</div>
+                        <div class="box-height-updown">3</div>
+                        <div class="box-height-updown">4</div>
+                        <div class="box-height-updown">5</div>
+                        <div class="box-height-updown">6</div>
+                        <div class="box-height-updown">7</div>
+                        <div class="box-height-updown">8</div>
+                    </div>
+                </div>
+            <div class="bot">
+                <div class="box-width">A</div>
+                <div class="box-width">B</div>
+                <div class="box-width">C</div>
+                <div class="box-width">D</div>
+                <div class="box-width">E</div>
+                <div class="box-width">F</div>
+                <div class="box-width">G</div>
+                <div class="box-width">H</div>
+            </div>
+        </div>
+    </div>
+    <script src="canvas.js" type="text/javascript"></script>
 </body>
 </html>
