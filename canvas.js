@@ -126,4 +126,11 @@ for(let i=0; i<8; i++) {
     };
 
 //handling moving
-    ctx.addEventListener('click', move , false)
+function animate () {
+    wPawn.addEventListener('click', move, false)
+}
+animate();
+
+function move () {
+    console.log('click');
+}
