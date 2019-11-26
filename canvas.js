@@ -37,100 +37,104 @@ for(let i=0; i<8; i++) {
         }
     }
 }
+// piece class
+class Piece {
+    constructor(x,y,src) {
+        this.x = x;
+        this.y = y;
+        this.image = new Image();
+        this.image.src = src;
+    }
+    draw() {
+        this.image.onload = () => {
+            ctx.drawImage(this.image, this.x, this.y, 100, 100);
+        };
+    }
+}
 
-// render black pieces
-//king
-    const bKing = new Image();
-    bKing.src = './pieces/black-king.svg';
-    bKing.onload = () => {
-        ctx.drawImage(bKing, 405, 5, 100, 100);
-    };
-//queen
-    const bQueen = new Image();
-    bQueen.src = './pieces/black-queen.svg';
-    bQueen.onload = () => {
-        ctx.drawImage(bQueen, 305, 5, 100, 100);
-    };
-//rock
-    const bRock = new Image();
-    bRock.src = './pieces/black-rock.svg';
-    bRock.onload = () => {
-        ctx.drawImage(bRock, 5, 5, 100, 100);
-        ctx.drawImage(bRock, 705, 5, 100, 100);
-    };
-//knight
-    const bKnight = new Image();
-    bKnight.src = './pieces/black-knight.svg';
-    bKnight.onload = () => {
-        ctx.drawImage(bKnight, 105, 5, 100, 100);
-        ctx.drawImage(bKnight, 605, 5, 100, 100);
-    };
-//bishop
-    const bBishop = new Image();
-    bBishop.src = './pieces/black-bishop.svg';
-    bBishop.onload = () => {
-        ctx.drawImage(bBishop, 205, 5, 100, 100);
-        ctx.drawImage(bBishop, 505, 5, 100, 100);
-    };
-//pawn
-    const bPawn = new Image();
-    bPawn.src = './pieces/black-pawn.svg';
-    bPawn.onload = () => {
-        for(let i=0; i<8; i++) {
-            ctx.drawImage(bPawn, 5+(i*100), 105, 100, 100);
-        }
-    };
-
+//render black pieces
+const bKing = new Piece(405, 5,'./pieces/black-king.svg');
+bKing.draw();
+const bQueen = new Piece(305, 5,'./pieces/black-queen.svg');
+bQueen.draw();
+const bRock1 = new Piece(5, 5,'./pieces/black-rock.svg');
+bRock1.draw();
+const bRock2 = new Piece(705, 5,'./pieces/black-rock.svg');
+bRock2.draw();
+const bKnight1 = new Piece(105, 5,'./pieces/black-knight.svg');
+bKnight1.draw();
+const bKnight2 = new Piece(605, 5,'./pieces/black-knight.svg');
+bKnight2.draw();
+const bBishop1 = new Piece(205, 5,'./pieces/black-bishop.svg');
+bBishop1.draw();
+const bBishop2 = new Piece(505, 5,'./pieces/black-bishop.svg');
+bBishop2.draw();
+const bPawn1 = new Piece(5, 105,'./pieces/black-pawn.svg');
+bPawn1.draw();
+const bPawn2 = new Piece(105, 105,'./pieces/black-pawn.svg');
+bPawn2.draw();
+const bPawn3 = new Piece(205, 105,'./pieces/black-pawn.svg');
+bPawn3.draw();
+const bPawn4 = new Piece(305, 105,'./pieces/black-pawn.svg');
+bPawn4.draw();
+const bPawn5 = new Piece(405, 105,'./pieces/black-pawn.svg');
+bPawn5.draw();
+const bPawn6 = new Piece(505, 105,'./pieces/black-pawn.svg');
+bPawn6.draw();
+const bPawn7 = new Piece(605, 105,'./pieces/black-pawn.svg');
+bPawn7.draw();
+const bPawn8 = new Piece(705, 105,'./pieces/black-pawn.svg');
+bPawn8.draw();
 
 // render white pieces
-//king
-    const wKing = new Image();
-    wKing.src = './pieces/white-king.svg';
-    wKing.onload = () => {
-        ctx.drawImage(wKing, 405, 705, 100, 100);
-    };
-//queen
-    const wQueen = new Image();
-    wQueen.src = './pieces/white-queen.svg';
-    wQueen.onload = () => {
-        ctx.drawImage(wQueen, 305, 705, 100, 100);
-    };
-//rock
-    const wRock = new Image();
-    wRock.src = './pieces/white-rock.svg';
-    wRock.onload = () => {
-        ctx.drawImage(wRock, 5, 705, 100, 100);
-        ctx.drawImage(wRock, 705, 705, 100, 100);
-    };
-//knight
-    const wKnight = new Image();
-    wKnight.src = './pieces/white-knight.svg';
-    wKnight.onload = () => {
-    ctx.drawImage(wKnight, 105, 705, 100, 100);
-    ctx.drawImage(wKnight, 605, 705, 100, 100);
-    };
-//bishop
-    const wBishop = new Image();
-    wBishop.src = './pieces/white-bishop.svg';
-    wBishop.onload = () => {
-    ctx.drawImage(wBishop, 205, 705, 100, 100);
-    ctx.drawImage(wBishop, 505, 705, 100, 100);
-    };
-//pawn
-    const wPawn = new Image();
-    wPawn.src = './pieces/white-pawn.svg';
-    wPawn.onload = () => {
-        for(let i=0; i<8; i++) {
-            ctx.drawImage(wPawn, 5+(i*100), 605, 100, 100);
-        }
-    };
+const wKing = new Piece(405, 705,'./pieces/white-king.svg');
+wKing.draw();
+const wQueen = new Piece(305, 705,'./pieces/white-queen.svg');
+wQueen.draw();
+const wRock1 = new Piece(5, 705,'./pieces/white-rock.svg');
+wRock1.draw();
+const wRock2 = new Piece(705, 705,'./pieces/white-rock.svg');
+wRock2.draw();
+const wKnight1 = new Piece(105, 705,'./pieces/white-knight.svg');
+wKnight1.draw();
+const wKnight2 = new Piece(605, 705,'./pieces/white-knight.svg');
+wKnight2.draw();
+const wBishop1 = new Piece(205, 705,'./pieces/white-bishop.svg');
+wBishop1.draw();
+const wBishop2 = new Piece(505, 705,'./pieces/white-bishop.svg');
+wBishop2.draw();
+const wPawn1 = new Piece(5, 605,'./pieces/white-pawn.svg');
+wPawn1.draw();
+const wPawn2 = new Piece(105, 605,'./pieces/white-pawn.svg');
+wPawn2.draw();
+const wPawn3 = new Piece(205, 605,'./pieces/white-pawn.svg');
+wPawn3.draw();
+const wPawn4 = new Piece(305, 605,'./pieces/white-pawn.svg');
+wPawn4.draw();
+const wPawn5 = new Piece(405, 605,'./pieces/white-pawn.svg');
+wPawn5.draw();
+const wPawn6 = new Piece(505, 605,'./pieces/white-pawn.svg');
+wPawn6.draw();
+const wPawn7 = new Piece(605, 605,'./pieces/white-pawn.svg');
+wPawn7.draw();
+const wPawn8 = new Piece(705, 605,'./pieces/white-pawn.svg');
+wPawn8.draw();
 
-//handling moving
-function animate () {
-    wPawn.addEventListener('click', move, false)
-}
-animate();
+//getting position
+canvas.addEventListener('click', move, false)
+const cLeft = canvas.offsetLeft;
+const cTop = canvas.offsetTop;
 
-function move () {
-    console.log('click');
+
+// handling pieces moving 
+function move(event) {
+    const posx = event.pageX - cLeft;
+    const posy = event.pageY - cTop;
+    console.log(x,y);
+    if(posx >= this.x && posy >= this.y && posx <= this.x && posy <= this.y) {
+        console.log('doesnt work')
+    }
 }
+
+
+
