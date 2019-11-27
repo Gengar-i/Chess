@@ -1,7 +1,7 @@
 class Piece {
   constructor(x, y, isWhite, pic) {
     this.matrixPosition = createVector(x, y);
-    this.pixelPosition = createVector(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
+    this.pixelPosition = createVector(x * tileSize + tileSize /2, y * tileSize + tileSize /2);
 
     this.taken = false;
     this.isWhite = isWhite;
@@ -22,70 +22,9 @@ class Piece {
       }
     }
   }
-  generateNewBoards(currentBoard) {
-    const boards = []; //all boards created from moving this piece
-    const moves = this.generateMoves(currentBoard); //all the posible moves this piece can do ,as vectors
-    for (let i = 0; i < moves.length; i++) { //for each move
-      boards[i] = currentBoard.clone(); //create a new board
-      boards[i].move(this.matrixPosition, moves[i]); //move this piece to the mvoe location
-    }
-    return boards;
-  } 
-  withinBounds(x, y) {
-    if (x >= 0 && y >= 0 && x < 8 && y < 8) {
-      return true;
-    }
-    return false;
-  }
-  move(x, y, board) {
-    const attacking = board.getPieceAt(x, y);
-    if (attacking != null) {
-      attacking.taken = true;
-    }
+  move(x, y) {
     this.matrixPosition = createVector(x, y);
     this.pixelPosition = createVector(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
-  }
-  attackingAllies(x, y, board) {
-    const attacking = board.getPieceAt(x, y);
-    if (attacking != null) {
-      if (attacking.white == this.white) {
-        return true;
-      }
-    }
-    return false;
-  }
-  canMove(x, y) {
-    if (!this.withinBounds(x, y)) {
-      return false;
-    }
-    return true;
-  }
-  moveThroughPieces(x, y, board) {
-    let stepDirectionX = x - this.matrixPosition.x;
-    if (stepDirectionX > 0) {
-      stepDirectionX = 1;
-    } else if (stepDirectionX < 0) {
-      stepDirectionX = -1;
-    }
-    let stepDirectionY = y - this.matrixPosition.y;
-    if (stepDirectionY > 0) {
-      stepDirectionY = 1;
-    } else if (stepDirectionY < 0) {
-      stepDirectionY = -1;
-    }
-    let tempPos = createVector(this.matrixPosition.x, this.matrixPosition.y);
-    tempPos.x += stepDirectionX;
-    tempPos.y += stepDirectionY;
-    while (tempPos.x != x || tempPos.y != y) {
-
-      if (board.getPieceAt(tempPos.x, tempPos.y) != null) {
-        return true;
-      }
-      tempPos.x += stepDirectionX;
-      tempPos.y += stepDirectionY;
-    }
-
-    return false;
   }
 }
 
@@ -196,6 +135,3 @@ class Pawn extends Piece {
     return clone;
   }
 }
-
-//moving pieces
-

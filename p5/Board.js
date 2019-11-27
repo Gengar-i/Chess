@@ -72,7 +72,7 @@ class Board {
             return this.whitePieces[i];
           }
         }
-        for (var i = 0; i < this.blackPieces.length; i++) {
+        for (let i = 0; i < this.blackPieces.length; i++) {
           if (!this.blackPieces[i].taken && this.blackPieces[i].matrixPosition.x == x && this.blackPieces[i].matrixPosition.y == y) {
             return this.blackPieces[i];
           }
@@ -85,7 +85,7 @@ class Board {
         //"dupa";
         return;
       }
-      pieceToMove.move(to.x, to.y, this);
+      pieceToMove.move(to.x, to.y);
     }
     clone() {
         const clone = new Board();
@@ -96,5 +96,8 @@ class Board {
           clone.blackPieces[i] = this.blackPieces[i].clone();
         }
         return clone;
+    }
+    gameOver() {
+      return this.whitePieces[0].taken || this.blackPieces[0].taken;
     }
 }

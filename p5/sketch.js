@@ -1,8 +1,8 @@
 let game;
 const tileSize = 100;
-const whitesMove = true;
 const images = [];
 
+//initile only onces
 function setup() {
     createCanvas(800, 800);
     
@@ -10,7 +10,12 @@ function setup() {
         images.push(loadImage("assets/Chess_" + i + ".png"));
     }
     game = new Board();
+    console.log(game.whitePieces[0].matrixPosition.x)
+    console.log(game.whitePieces[0].matrixPosition.y)
+    console.log(game.whitePieces)
+    
 }
+//drawing all the time.
 function draw() {
     background('#555');
     showGrid();
@@ -25,6 +30,7 @@ function drawBoarding () {
     line(800,0,800,800);
     line(0,800,800,800);
 }
+//rendeing chessboard
 function showGrid() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -39,4 +45,30 @@ function showGrid() {
 
     }
   }
+}
+//variables for moving
+let moving = false;
+let movingPiece;
+let whitesMove = true;
+
+//moving pieces
+function mousePressed() {
+    let x = floor(mouseX / tileSize);
+    let y = floor(mouseY / tileSize);
+    if(!game.gameOver()) {
+        if (!moving) {
+            movingPiece = game.getPieceAt(x,y);
+            if(game.isPieceAt(x,y)) {
+                // getting array with white or black pieces
+                movingPiece.movingThisPiece = true;
+            }
+        }
+        else {
+            //moving piece
+            movingPiece.move(x,y);
+            movingPiece.movingThisPiece = false;
+        }
+        //reset moving
+        moving = !moving;
+    }
 }
