@@ -7,9 +7,9 @@ let y = 0;
 ctx.beginPath();
 ctx.strokeStyle = 'white';
 ctx.moveTo(x,y);
-ctx.lineTo(x+810,y);
-ctx.lineTo(x+810,y+810);
-ctx.lineTo(x,y+810);
+ctx.lineTo(x+815,y);
+ctx.lineTo(x+815,y+81);
+ctx.lineTo(x,y+820);
 ctx.lineTo(x,y)
 ctx.lineWidth = 10;
 ctx.stroke();
