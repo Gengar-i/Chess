@@ -14,5 +14,4 @@ export const showPreMoves = (piece, type, pieceLocation, whiteSide) => {
         }
             // +1 or attack enPasant
     }
-    
 };
