@@ -61,23 +61,30 @@ body {
     align-items: center;
 }
 .piece-box.white-box {
-    background: #eeeed2;
+    background-color: #eeeed2;
 }
 .piece-box.black-box {
-    background: #769656;
+    background-color: #769656;
 } 
 .piece {
     width: 80px;
     height: 80px;
 }
 .piece-box.piece-hover {
-    background-color: #EFEA5A;
+    border: 2px solid rgb(248, 233, 24);
 }
 .piece-box.piece-clicked {
-    background-color: #16DB93;
+    background-color: #dfe239;
 }
-.premoves {
-    background-color: #048BA8;
+.piece-box.piece-premove {
+    cursor: pointer;
+}
+.piece-box.piece-premove::after {
+    content: "";
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    background-color: rgba(0, 0, 0, .25);
 }
 .win {
     background-color: #A4036F;
@@ -178,5 +185,9 @@ body {
     .piece {
         width: 40px;
         height: 40px;
+    }
+    .piece-box.piece-premove::after {
+        width: 10px;
+        height: 10px;
     }
 }

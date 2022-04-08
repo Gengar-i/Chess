@@ -3,9 +3,9 @@ import { piecesImages } from "./config/piecesImages.js";
 import { q, qAll } from "./helpers.js";
 import { mouseEnter, mouseLeave, pieceClick } from "./src/listeners.js";
 
-let whiteSide = false;
+let whiteSide = false; // start with false but with first render became true
 
-const toggleChangeSideButton = (unblock) => {
+export const toggleChangeSideButton = (unblock) => {
     const button = q("#change-sides");
     if (unblock) {
         button.classList.remove("disabled");
@@ -17,7 +17,15 @@ const toggleChangeSideButton = (unblock) => {
 };
 
 const resetGame = () => {
-
+    toggleChangeSideButton(true);
+    qAll(".piece-box").forEach((piece) => {
+        if (piece.firstChild) piece.removeChild(piece.firstChild);
+        piece.classList.remove("piece-pointer", "piece-clicked", "piece-premove");
+        piece.removeEventListener("mouseenter", (el) => mouseEnter(el, piece));
+        piece.removeEventListener("mouseleave", (el) => mouseLeave(el, piece));
+        piece.removeEventListener("click", (el) => pieceClick(el, piece, whiteSide));
+    });
+    renderGame.renderPieces();
 };
 
 const renderSide = (reversed = false) => {
@@ -74,12 +82,14 @@ const renderGame = {
     pieceAddEvents() {
         qAll(".piece-box").forEach((piece) => {
             if (piece.hasChildNodes()) {
-                piece.classList.add("piece-pointer")
+                piece.classList.add("piece-pointer");
             }
             piece.addEventListener("mouseenter", (el) => mouseEnter(el, piece));
             piece.addEventListener("mouseleave", (el) => mouseLeave(el, piece));
-            piece.addEventListener("click", (el) => pieceClick(el, piece, whiteSide));
+            piece.addEventListener("click", (el) => pieceClick(el, piece));
         });
+    },
+    resetAddEvents() {
 
     }
 };
@@ -89,5 +99,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 q("#change-sides").addEventListener("click", () => renderSide(whiteSide));
-q("#reset").addEventListener("click", () => resetGame());
+q("#reset").addEventListener("click", () => {
+    resetGame();
+    resetGame();
+});
 
