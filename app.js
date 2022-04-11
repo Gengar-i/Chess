@@ -1,9 +1,11 @@
 import { initialGame } from "./config/initialGame.js";
 import { piecesImages } from "./config/piecesImages.js";
 import { q, qAll } from "./helpers.js";
-import { mouseEnter, mouseLeave, pieceClick } from "./src/listeners.js";
+import {
+    mouseEnter, mouseLeave, pieceClick, blockChangeSides, restart, undoMove, toggleUndoButton
+} from "./src/listeners.js";
 
-let whiteSide = false; // start with false but with first render became true
+export let whiteSide = false; // start with false but with first render became true
 
 export const toggleChangeSideButton = (unblock) => {
     const button = q("#change-sides");
@@ -17,13 +19,16 @@ export const toggleChangeSideButton = (unblock) => {
 };
 
 const resetGame = () => {
+    toggleUndoButton(false);
+    blockChangeSides(true);
     toggleChangeSideButton(true);
+    restart();
     qAll(".piece-box").forEach((piece) => {
         if (piece.firstChild) piece.removeChild(piece.firstChild);
-        piece.classList.remove("piece-pointer", "piece-clicked", "piece-premove");
+        piece.classList.remove("piece-pointer", "piece-clicked", "piece-premove", "piece-endmove", "piece-startmove");
         piece.removeEventListener("mouseenter", (el) => mouseEnter(el, piece));
         piece.removeEventListener("mouseleave", (el) => mouseLeave(el, piece));
-        piece.removeEventListener("click", (el) => pieceClick(el, piece, whiteSide));
+        piece.removeEventListener("click", (el) => pieceClick(el, piece));
     });
     renderGame.renderPieces();
 };
@@ -67,6 +72,8 @@ const renderGame = {
         renderSide();
         this.placePiece(gameSetup);
         this.pieceAddEvents();
+        this.blockDragEvent();
+        toggleUndoButton(true);
     },
     placePiece(gameSetup) {
         for (const piecePosition in gameSetup) {
@@ -91,6 +98,9 @@ const renderGame = {
     },
     resetAddEvents() {
 
+    },
+    blockDragEvent() {
+        qAll(".piece-box > img").forEach((img) => img.setAttribute("draggable", false));
     }
 };
 
@@ -103,4 +113,8 @@ q("#reset").addEventListener("click", () => {
     resetGame();
     resetGame();
 });
-
+q("#undo-move").addEventListener("click", () => {
+    const piece = q(".piece-endmove");
+    const activePiece = q(".piece-startmove");
+    undoMove(piece, activePiece);
+});

@@ -1,25 +1,31 @@
-import { q, qAll } from "../../helpers.js";
+import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
 
-export const pawnPreMove = (isWhite, pieceLocation, startingPostions) => {
-    const isStartingPosition = startingPostions.find((sp) => sp.position === pieceLocation).isFirstMove;
-    console.log(isStartingPosition);
-    if (isStartingPosition) {
-        const position = pieceLocation.split("");
-        position[1] = Number(position[1]);
-        const squares = isWhite
-        ? qAll(`#${position[0] + (position[1] + 1)}, #${position[0] + (position[1] + 2)}`)
-        : qAll(`#${position[0] + (position[1] - 1)}, #${position[0] + (position[1] - 2)}`);
-        squares.forEach((square) => square.classList.add("piece-premove"));
-    } else {
-        const position = pieceLocation.split("");
-        position[1] = Number(position[1]);
-        const squares = isWhite
-        ? qAll(`#${position[0] + (position[1] + 1)}`)
-        : qAll(`#${position[0] + (position[1] - 1)}`);
-        squares.forEach((square) => square.classList.add("piece-premove"));
+export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant) => {
+    const letter = pieceLocation.split("")[0];
+    const number = Number(pieceLocation.split("")[1]);
+    //moves
+    const plusOneMove = isWhite ? q(`#${letter + (number + 1)}`) : q(`#${letter + (number - 1)}`);
+
+    //attaks
+    const attackIdSquares = [changeLetter(letter, 1, false), changeLetter(letter, 1, true)].filter((letter) => letter.match(/[a-h]/));
+    const attackLocation = isWhite
+        ? qAll(`#${attackIdSquares[0] + (number + 1)}, #${attackIdSquares[1] + (number + 1)}`)
+        : qAll(`#${attackIdSquares[0] + (number - 1)}, #${attackIdSquares[1] + (number - 1)}`);
+    const enPeasantSquare = enPeasant ? q(`#${enPeasant[1]}`) : null;
+    if (attackLocation.some((a) => a.hasChildNodes() && isOpponent(a, isWhite) || a === enPeasantSquare)) {
+        attackLocation.forEach((square) => {
+            if (square.hasChildNodes() || square === enPeasantSquare) square.classList.add("piece-attack");
+        });
     }
-        // if () {
-        //     q();
-        //     
-    // add + 1
+    const collide = plusOneMove && plusOneMove.firstChild;
+    if (!collide) {
+        if (isFirstMove) {
+            const plusOneOrTwoMove = isWhite
+                ? qAll(`#${letter + (number + 1)}, #${letter + (number + 2)}`)
+                : qAll(`#${letter + (number - 1)}, #${letter + (number - 2)}`);
+            plusOneOrTwoMove.forEach((square) => square.classList.add("piece-premove"));
+        } else {
+            plusOneMove.classList.add("piece-premove");
+        }
+    }
 };
