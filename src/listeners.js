@@ -154,8 +154,11 @@ const updatePointers = () => {
 };
 
 const canUpgradePawn = (piece) => {
-    const squareNumber = Number(piece.getAttribute("id").slice("")[1]);
-    return squareNumber === 1 || squareNumber === 8;
+    if (piece.firstChild.getAttribute("piece-type").includes("pawn")) {
+        const squareNumber = Number(piece.getAttribute("id").slice("")[1]);
+        return squareNumber === 1 || squareNumber === 8;
+    }
+    return false;
 };
 
 const upgradePawn = (piece, activePiece, whiteTurn) => {
@@ -280,19 +283,22 @@ export const blockChangeSides = (reset = false) => {
     }
 };
 
+//checking if enPeasaunt happened
 const enPeasantFunc = (startSquare, endSquare) => {
+    console.log(startSquare, endSquare);
     const startNumber = Number(startSquare.getAttribute("id").split("")[1]);
     const endNumber = Number(endSquare.getAttribute("id").split("")[1]);
     const letter = startSquare.getAttribute("id").split("")[0];
-    const pieceType = startSquare.firstChild.getAttribute("piece-type");
-    if (pieceType.includes("pawn") && (Math.abs(startNumber - endNumber) === 2)) {
-        const perfectPlace = whiteTurn ? (startNumber - 1) : (startNumber + 1);
-        enPeasant = [];
-        enPeasant.push(startSquare, letter + perfectPlace);
-    } else {
-        enPeasant = null;
+    const pieceType = startSquare.firstChild && startSquare.firstChild.getAttribute("piece-type");
+    if (pieceType) {
+        if (pieceType.includes("pawn") && (Math.abs(startNumber - endNumber) === 2)) {
+            const perfectPlace = whiteTurn ? (startNumber - 1) : (startNumber + 1);
+            enPeasant = [];
+            enPeasant.push(startSquare, letter + perfectPlace);
+        } else {
+            enPeasant = null;
+        }
     }
-
 };
 
 export const toggleUndoButton = (disable) => {
