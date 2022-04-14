@@ -2,7 +2,7 @@ import { initialGame } from "./config/initialGame.js";
 import { piecesImages } from "./config/piecesImages.js";
 import { q, qAll } from "./helpers.js";
 import {
-    mouseEnter, mouseLeave, pieceClick, blockChangeSides, restart, undoMove, toggleUndoButton
+    mouseEnter, mouseLeave, pieceClick, blockChangeSides, restart, undoMove, toggleUndoButton, contextmenu
 } from "./src/listeners.js";
 
 export let whiteSide = false; // start with false but with first render became true
@@ -29,6 +29,7 @@ const resetGame = () => {
         piece.removeEventListener("mouseenter", (el) => mouseEnter(el, piece));
         piece.removeEventListener("mouseleave", (el) => mouseLeave(el, piece));
         piece.removeEventListener("click", (el) => pieceClick(el, piece));
+        piece.removeEventListener("contextmenu", (el) => contextmenu(el, piece));
     });
     renderGame.renderPieces();
 };
@@ -94,6 +95,7 @@ const renderGame = {
             piece.addEventListener("mouseenter", (el) => mouseEnter(el, piece));
             piece.addEventListener("mouseleave", (el) => mouseLeave(el, piece));
             piece.addEventListener("click", (el) => pieceClick(el, piece));
+            piece.addEventListener("contextmenu", (el) => contextmenu(el, piece));
         });
     },
     resetAddEvents() {
@@ -107,6 +109,8 @@ const renderGame = {
 window.addEventListener('DOMContentLoaded', () => {
     renderGame.renderPieces();
 });
+
+
 
 q("#change-sides").addEventListener("click", () => renderSide(whiteSide));
 q("#reset").addEventListener("click", () => {

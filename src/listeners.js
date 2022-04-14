@@ -3,11 +3,13 @@ import { showPreMoves } from "./moves.js";
 import { toggleChangeSideButton } from "../app.js";
 import { startingPostions } from "../config/startingPositions.js";
 import { whiteSide } from "../app.js";
+import { findCheck } from "./moves/movHelpers.js";
 
 let clickedPiece = null;
 let clonedRemovedPiece = null;
 let startingPiece = null;
 let whiteTurn = true;
+let check = false;
 
 let blockChangeSide = false;
 let enPeasant = null;
@@ -30,11 +32,19 @@ export const mouseLeave = (el, piece) => {
     if (piece.classList.contains("piece-hover")) piece.classList.remove("piece-hover");
 };
 
+export const contextmenu = (el, piece) => {
+    el.preventDefault();
+    if (!piece.classList.contains("piece-contextmenu")) piece.classList.add("piece-contextmenu");
+    else piece.classList.remove("piece-contextmenu");
+};
+
 //piece = clicked tile
 //activePiece = previously clicked tile
 export const pieceClick = (el, piece) => {
+    //remove contextMenuColor
+    qAll(".piece-box").forEach((piecev) => piecev.classList.remove("piece-contextmenu"));
     const pieceType = piece.firstChild ? piece.firstChild.getAttribute("piece-type") : null;
-    const pieceColor = whiteTurn ? "white" : "black"
+    const pieceColor = whiteTurn ? "white" : "black";
     if ((pieceType && pieceType.includes(pieceColor)) || piece.classList.contains("piece-premove") || piece.classList.contains("piece-attack")) {
         const activePiece = qAll(".piece-box").find((piecev) => piecev.classList.contains("piece-clicked"));
         if (piece.classList.contains("piece-attack")) {
@@ -66,7 +76,8 @@ export const pieceClick = (el, piece) => {
             toggleUndoButton(false);
             enPeasant = null;
             blockChangeSides();
-            enPeasantFunc(piece, activePiece);
+            
+            checkForEnPeasant(piece, activePiece);
 
             ////end actions
             updatePointers();
@@ -81,6 +92,7 @@ export const pieceClick = (el, piece) => {
                 piecev.classList.remove("piece-clicked");
                 piecev.classList.remove("piece-premove");
                 piecev.classList.remove("piece-attack");
+                piecev.classList.remove("check-king");
             });
         }
         if (piece.hasChildNodes() && (clickedPiece !== piece || !activePiece)) {
@@ -91,7 +103,7 @@ export const pieceClick = (el, piece) => {
             startingPiece = piece;
             clickedPiece = piece;
             const pieceLocation = piece.getAttribute("id");
-            showPreMoves(piece, pieceType, pieceLocation, startingPosItionsArray, enPeasant);
+            showPreMoves(pieceType, pieceLocation, startingPosItionsArray, enPeasant, checkIfCheck(whiteTurn));
         }
     }
 };
@@ -114,6 +126,14 @@ const attack = (piece, activePiece, enPeasant = null) => {
         const activePieceChild = activePiece.firstChild;
         clonedRemovedPiece = clickedPiece.firstChild.cloneNode();
         piece.replaceChild(activePieceChild, clickedPiece.firstChild);
+    }
+};
+
+const checkIfCheck = () => {
+    const lastMoveSquare = q(".piece-endmove");
+    if (lastMoveSquare) {
+        const check = findCheck(lastMoveSquare);
+        return check;
     }
 };
 
@@ -258,6 +278,7 @@ const upgradePawn = (piece, activePiece, whiteTurn) => {
     upgrade.style.transform = `translate(${transformX}px, ${transformY}px)`;
 };
 
+//close modal for upgrading pawn
 const closeUpgrade = () => {
     const upgrade = q(".upgrade");
     upgrade.classList.add("hidden");
@@ -283,9 +304,7 @@ export const blockChangeSides = (reset = false) => {
     }
 };
 
-//checking if enPeasaunt happened
-const enPeasantFunc = (startSquare, endSquare) => {
-    console.log(startSquare, endSquare);
+const checkForEnPeasant = (startSquare, endSquare) => {
     const startNumber = Number(startSquare.getAttribute("id").split("")[1]);
     const endNumber = Number(endSquare.getAttribute("id").split("")[1]);
     const letter = startSquare.getAttribute("id").split("")[0];
@@ -301,6 +320,7 @@ const enPeasantFunc = (startSquare, endSquare) => {
     }
 };
 
+//enable disable Undon button
 export const toggleUndoButton = (disable) => {
     const undoButton = q("#undo-move");
     if (disable) {

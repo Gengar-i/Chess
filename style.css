@@ -77,6 +77,13 @@ body {
 .piece-box.piece-clicked {
     background-color: #dfe239;
 }
+.piece-box.piece-contextmenu.white-box {
+    background-color: rgb(235, 97, 80);
+}
+.piece-box.piece-contextmenu.black-box {
+    background-color: rgb(235, 97, 80);
+    opacity: 0.8;
+}
 .piece-box.piece-premove,
 .piece-box.piece-attack {
     cursor: pointer;
@@ -128,9 +135,12 @@ body {
     background-color: #f1ff62;
 }
 
+.check-king {
+    background-color: #F29E4C;
+}
+
 .win {
     background-color: #A4036F;
-    background-color: #F29E4C;
 }
 
 .piece-box.piece-pointer,

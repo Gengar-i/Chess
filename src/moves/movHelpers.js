@@ -1,4 +1,5 @@
 import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
+import { showPreMoves } from "../moves.js";
 
 const iteration = (array, pieceLocation, increment = true, letterson = true) => {
     const letter = pieceLocation.split("")[0];
@@ -16,17 +17,19 @@ const iteration = (array, pieceLocation, increment = true, letterson = true) => 
     return array.map((num) => (num >= 1 && num <= 8) ? num : null);
 };
 
-const addMoves = (squares1, squares2, squares3, squares4, isWhite) => {
+const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation, attack) => {
     const squares = [...squares1, ...squares2, ...squares3, ...squares4];
     const querySquares = squares.map((square, index) => ((index + 1 !== squares.length) ? "#" + square + ", " : "#" + square)).join("");
-    const bishopSquares = querySquares ? qAll(querySquares) : [];
-    bishopSquares.forEach((square) => {
+    const movementSquares = querySquares ? qAll(querySquares) : [];
+    if (kingLocation) return movementSquares.some((square) => square === kingLocation);
+    if (attack) return movementSquares;
+    movementSquares.forEach((square) => {
         if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
         else if (!square.firstChild) square.classList.add("piece-premove");
     });
 };
 
-export const diagonalMovement = (isWhite, pieceLocation) => {
+export const diagonalMovement = (isWhite, pieceLocation, kingLocation, attack) => {
     const addDiagonalSquares = (array, letters, numbers) => {
         for (let i = 0; i < 7 ; i++) {
             if (letters[i] && numbers[i]) array.push(letters[i] + numbers[i]);
@@ -57,10 +60,11 @@ export const diagonalMovement = (isWhite, pieceLocation) => {
     squares2 = addDiagonalSquares(squares2, letterPos, numbersNeg);
     squares3 = addDiagonalSquares(squares3, letterNeg, numbersPos);
     squares4 = addDiagonalSquares(squares4, letterNeg, numbersNeg);
-    addMoves(squares1, squares2, squares3, squares4, isWhite);
+    kingLocation, attack
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, attack);
 };
 
-export const linearMovement = (isWhite, pieceLocation) => {
+export const linearMovement = (isWhite, pieceLocation, kingLocation, attack) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     const addLinearSquares = (array, iterableArr, char, positive = true) => {
@@ -97,10 +101,10 @@ export const linearMovement = (isWhite, pieceLocation) => {
     squares2 = addLinearSquares(squares2, letterPos, number); //right
     squares3 = addLinearSquares(squares3, numbersNeg, letter, false); //bottom
     squares4 = addLinearSquares(squares4, letterNeg, number, false); //left
-    addMoves(squares1, squares2, squares3, squares4, isWhite);
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, attack);
 };
 
-export const kingMovement = (isWhite, pieceLocation) => {
+export const kingMovement = (pieceLocation) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     const letters = [changeLetter(letter, 1, false), changeLetter(letter, 1, true)]
@@ -118,8 +122,19 @@ export const kingMovement = (isWhite, pieceLocation) => {
     if (letters[1] && number) squares.push(letters[1] + number);
     const querySquares = squares.map((square, index) => ((index + 1 !== squares.length) ? "#" + square + ", " : "#" + square)).join("");
     const knightSquares = querySquares ? qAll(querySquares) : [];
-    knightSquares.forEach((square) => {
-        if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
-        else if (!square.firstChild) square.classList.add("piece-premove");
-    });
+    return knightSquares;
+};
+
+export const findCheck = (pieceSquare) => {
+    if (pieceSquare.firstChild) {
+        const lastMovePiece = pieceSquare.firstChild.getAttribute("piece-type");
+        const isWhite = pieceSquare.firstChild.getAttribute("piece-type").includes("white");
+        const kingImg = isWhite ? q(`[piece-type="black-king"]`) : q(`[piece-type="white-king"]`);
+        const kingLocation = kingImg.parentNode;
+        const pieceLocation = pieceSquare.getAttribute("id");
+
+        //possible check moves
+        return showPreMoves(lastMovePiece, pieceLocation, [], null, false, kingLocation);
+    }
+    return false;
 };
