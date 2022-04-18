@@ -1,3 +1,4 @@
+import { q } from "../helpers.js";
 import { pawnPreMove } from "./moves/pawnPreMove.js";
 import { knightPreMove } from "./moves/knightPreMove.js";
 import { bishopPreMove } from "./moves/bishopPreMove.js";
@@ -5,7 +6,6 @@ import { rookPreMove } from "./moves/rookPreMove.js";
 import { queenPreMove } from "./moves/queenPreMove.js";
 import { kingPreMove } from "./moves/kingPreMove.js";
 import { initialGame } from "../config/initialGame.js";
-import { q } from "../helpers.js";
 
 // given kingLocation we want to know if there is check so returning true of false depending on where piece can attack
 export const showPreMoves = (type, pieceLocation, startingPostions, enPeasant, isCheck, kingLocation = null) => {
@@ -35,7 +35,7 @@ export const showPreMoves = (type, pieceLocation, startingPostions, enPeasant, i
         }
         if (type.includes("king")) {
             if (kingLocation) return false;
-            kingPreMove(type.includes("white"), pieceLocation);
+            kingPreMove(type.includes("white"), pieceLocation, startingPostions);
         }
     }
     if (isCheck) {

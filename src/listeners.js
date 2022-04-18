@@ -71,7 +71,10 @@ export const pieceClick = (el, piece) => {
             //move
             move(piece, activePiece);
             if (canUpgradePawn(piece)) upgradePawn(piece, activePiece, whiteTurn);
-            
+
+            //castling
+            if (piece.classList.contains("long-castling") || piece.classList.contains("short-castling")) castling(piece.classList.contains("long-castling"));
+
             //other
             toggleUndoButton(false);
             enPeasant = null;
@@ -89,10 +92,7 @@ export const pieceClick = (el, piece) => {
         if (activePiece) {
             //unclick
             qAll(".piece-box").forEach((piecev) => {
-                piecev.classList.remove("piece-clicked");
-                piecev.classList.remove("piece-premove");
-                piecev.classList.remove("piece-attack");
-                piecev.classList.remove("check-king");
+                piecev.classList.remove("piece-clicked", "piece-premove", "piece-attack", "check-king", "long-castling", "short-castling");
             });
         }
         if (piece.hasChildNodes() && (clickedPiece !== piece || !activePiece)) {
@@ -329,5 +329,20 @@ export const toggleUndoButton = (disable) => {
     } else {
         undoButton.disabled = false;
         undoButton.classList.remove("disabled")
+    }
+};
+
+const castling = (long) => {
+    const updateRook = (place, desirePlace) => {
+        const rook = q(place);
+        const removedrook = rook.removeChild(rook.firstChild);
+        q(desirePlace).appendChild(removedrook);
+    };
+    if (whiteTurn) {
+        if (long) updateRook("#a1", "#d1");
+        else updateRook("#h1", "#f1");
+    } else {
+        if (long) updateRook("#a8", "#d8");
+        else updateRook("#h8", "#f8");
     }
 };

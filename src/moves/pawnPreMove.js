@@ -9,7 +9,7 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
     //attaks
     const attackIdSquares = [changeLetter(letter, 1, false), changeLetter(letter, 1, true)].filter((letter) => letter.match(/[a-h]/));
     const attackLocationSquares = isWhite
-        ? [attackIdSquares[0] + (number + 1), attackIdSquares[1] + (number + 1)] 
+        ? [attackIdSquares[0] + (number + 1), attackIdSquares[1] + (number + 1)]
         : [attackIdSquares[0] + (number - 1), attackIdSquares[1] + (number - 1)];
     const attackLocation = isWhite
         ? qAll(`#${attackIdSquares[0] + (number + 1)}, #${attackIdSquares[1] + (number + 1)}`)
