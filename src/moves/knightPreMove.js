@@ -1,6 +1,6 @@
 import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
 
-export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, attack = false) => {
+export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, checkSquares = null, attack = false) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     const letters = [changeLetter(letter, 2, false), changeLetter(letter, 1, false), changeLetter(letter, 1, true), changeLetter(letter, 2, true)]
@@ -21,7 +21,14 @@ export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, attac
     if (kingLocation) return knightSquares.some((square) => square === kingLocation);
     if (attack) return knightSquares;
     knightSquares.forEach((square) => {
-        if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
-        else if (!square.firstChild) square.classList.add("piece-premove");
+        if (checkSquares) {
+            if (checkSquares.includes(square)) {
+                if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+                else if (!square.firstChild) square.classList.add("piece-premove");
+            }
+        } else {
+            if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+            else if (!square.firstChild) square.classList.add("piece-premove");
+        }
     });
 };

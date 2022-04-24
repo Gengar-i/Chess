@@ -1,6 +1,6 @@
 import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
 
-export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, kingLocation = null, attack = false) => {
+export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, kingLocation = null, checkSquares = null, attack = false) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     //moves
@@ -8,9 +8,6 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
 
     //attaks
     const attackIdSquares = [changeLetter(letter, 1, false), changeLetter(letter, 1, true)].filter((letter) => letter.match(/[a-h]/));
-    const attackLocationSquares = isWhite
-        ? [attackIdSquares[0] + (number + 1), attackIdSquares[1] + (number + 1)]
-        : [attackIdSquares[0] + (number - 1), attackIdSquares[1] + (number - 1)];
     const attackLocation = isWhite
         ? qAll(`#${attackIdSquares[0] + (number + 1)}, #${attackIdSquares[1] + (number + 1)}`)
         : qAll(`#${attackIdSquares[0] + (number - 1)}, #${attackIdSquares[1] + (number - 1)}`);
@@ -21,7 +18,9 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
         attackLocation.forEach((square) => {
             if (square.hasChildNodes() || square === enPeasantSquare) {
                 if (kingLocation && square === kingLocation) check = true;
-                square.classList.add("piece-attack");
+                if (checkSquares) {
+                    if (checkSquares.includes(square) || enPeasantSquare) square.classList.add("piece-attack");
+                } else square.classList.add("piece-attack");
             }
         });
     }
@@ -31,9 +30,15 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
             const plusOneOrTwoMove = isWhite
                 ? qAll(`#${letter + (number + 1)}, #${letter + (number + 2)}`)
                 : qAll(`#${letter + (number - 1)}, #${letter + (number - 2)}`);
-            plusOneOrTwoMove.forEach((square) => square.classList.add("piece-premove"));
+            plusOneOrTwoMove.forEach((square) => {
+                if (checkSquares) {
+                    if (checkSquares.includes(square)) square.classList.add("piece-premove");
+                } else square.classList.add("piece-premove");
+            });
         } else {
-            plusOneMove.classList.add("piece-premove");
+            if (checkSquares) {
+                if (checkSquares.includes(plusOneMove)) plusOneMove.classList.add("piece-premove");
+            } else plusOneMove.classList.add("piece-premove");
         }
     }
 };

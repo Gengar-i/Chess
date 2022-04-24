@@ -1,4 +1,4 @@
-import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
+import { q, qAll, changeLetter, isOpponent, letterPlace } from "../../helpers.js";
 import { showPreMoves } from "../moves.js";
 
 const iteration = (array, pieceLocation, increment = true, letterson = true) => {
@@ -17,19 +17,26 @@ const iteration = (array, pieceLocation, increment = true, letterson = true) => 
     return array.map((num) => (num >= 1 && num <= 8) ? num : null);
 };
 
-const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation, attack) => {
+const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack) => {
     const squares = [...squares1, ...squares2, ...squares3, ...squares4];
     const querySquares = squares.map((square, index) => ((index + 1 !== squares.length) ? "#" + square + ", " : "#" + square)).join("");
     const movementSquares = querySquares ? qAll(querySquares) : [];
     if (kingLocation) return movementSquares.some((square) => square === kingLocation);
     if (attack) return movementSquares;
     movementSquares.forEach((square) => {
-        if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
-        else if (!square.firstChild) square.classList.add("piece-premove");
+        if (checkMoves) {
+            if (checkMoves.includes(square)) {
+                if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+                else if (!square.firstChild) square.classList.add("piece-premove");
+            }
+        } else {
+            if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+            else if (!square.firstChild) square.classList.add("piece-premove");
+        }
     });
 };
 
-export const diagonalMovement = (isWhite, pieceLocation, kingLocation, attack) => {
+export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack) => {
     const addDiagonalSquares = (array, letters, numbers) => {
         for (let i = 0; i < 7 ; i++) {
             if (letters[i] && numbers[i]) array.push(letters[i] + numbers[i]);
@@ -60,16 +67,16 @@ export const diagonalMovement = (isWhite, pieceLocation, kingLocation, attack) =
     squares2 = addDiagonalSquares(squares2, letterPos, numbersNeg);
     squares3 = addDiagonalSquares(squares3, letterNeg, numbersPos);
     squares4 = addDiagonalSquares(squares4, letterNeg, numbersNeg);
-    kingLocation, attack
-    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, attack);
+    if (checker) return findDiagonalSquares(pieceLocation, kingLocation);
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack);
 };
 
-export const linearMovement = (isWhite, pieceLocation, kingLocation, attack) => {
+export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
-    const addLinearSquares = (array, iterableArr, char, positive = true) => {
+    const addLinearSquares = (array, iterableArr, char) => {
         for (let i = 0; i < 7 ; i++) {
-            if(isNaN(char)) {
+            if (isNaN(char)) {
                 if (char && iterableArr[i]) array.push(char + iterableArr[i]);
             } else {
                 if (iterableArr[i] && char) array.push(iterableArr[i] + char);
@@ -101,7 +108,8 @@ export const linearMovement = (isWhite, pieceLocation, kingLocation, attack) => 
     squares2 = addLinearSquares(squares2, letterPos, number); //right
     squares3 = addLinearSquares(squares3, numbersNeg, letter, false); //bottom
     squares4 = addLinearSquares(squares4, letterNeg, number, false); //left
-    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, attack);
+    if (checker) return findLinearSquares(pieceLocation, kingLocation);
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack);
 };
 
 export const kingMovement = (pieceLocation) => {
@@ -137,4 +145,70 @@ export const findCheck = (pieceSquare) => {
         return showPreMoves(lastMovePiece, pieceLocation, [], null, false, kingLocation);
     }
     return false;
+};
+
+const findDiagonalSquares = (checkerLocation, kingLocation) => {
+    const kingId = kingLocation.getAttribute("id");
+    const pieceLetter = checkerLocation.split("")[0];
+    const pieceNumber = Number(checkerLocation.split("")[1]);
+    const kingLetter = kingId.split("")[0];
+    const kingNumber = Number(kingId.split("")[1]);
+
+    let positiveLetters = true;
+    let positiveNumbers = true;
+    if (letterPlace(pieceLetter) > letterPlace(kingLetter)) positiveLetters = false;
+    if (pieceNumber > kingNumber) positiveNumbers = false;
+
+    let letters = [];
+    let numbers = [];
+    letters = iteration(letters, checkerLocation, positiveLetters);
+    numbers = iteration(numbers, checkerLocation, positiveNumbers, false);
+    let moves = [];
+    for (let i = 0; i < 7 ; i++) {
+        if (letters[i] && numbers[i]) {
+            const squareId = letters[i] + numbers[i];
+            if (kingId !== squareId) moves.push(squareId);
+        }
+    };
+    const querySquares = moves.map((square, index) => ((index + 1 !== moves.length) ? "#" + square + ", " : "#" + square)).join("");
+    const movementSquares = querySquares ? qAll(querySquares) : [];
+    return movementSquares;
+};
+
+const findLinearSquares = (checkerLocation, kingLocation) => {
+    const kingId = kingLocation.getAttribute("id");
+    const pieceLetter = checkerLocation.split("")[0];
+    const pieceNumber = Number(checkerLocation.split("")[1]);
+    const kingLetter = kingId.split("")[0];
+    const kingNumber = Number(kingId.split("")[1]);
+    let horizontallyCheck = (pieceNumber === kingNumber);
+    let positive = true;
+    if (horizontallyCheck) {
+        if (letterPlace(pieceLetter) > letterPlace(kingLetter)) positive = false
+    } else {
+        if (pieceNumber > kingNumber) positive = false;
+    }
+    
+    let letters = [];
+    let numbers = [];
+    if (horizontallyCheck) letters = iteration(letters, checkerLocation, positive);
+    else numbers = iteration(numbers, checkerLocation, positive, false);
+    console.log(letters, numbers);
+    let moves = [];
+    for (let i = 0; i < 7 ; i++) {
+        if (!horizontallyCheck) {
+            if (pieceLetter && numbers[i]) {
+                const squareId = pieceLetter + numbers[i];
+                if (kingId !== squareId) moves.push(squareId);
+            }
+        } else {
+            if (letters[i] && pieceNumber) {
+                const squareId = letters[i] + pieceNumber;
+                if (kingId !== squareId) moves.push(squareId);
+            }
+        }
+    };
+    const querySquares = moves.map((square, index) => ((index + 1 !== moves.length) ? "#" + square + ", " : "#" + square)).join("");
+    const movementSquares = querySquares ? qAll(querySquares) : [];
+    return movementSquares;
 };

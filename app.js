@@ -31,6 +31,8 @@ const resetGame = () => {
         piece.removeEventListener("click", (el) => pieceClick(el, piece));
         piece.removeEventListener("contextmenu", (el) => contextmenu(el, piece));
     });
+    const backdrop = q(".winner-backdrop");
+    backdrop.classList.add("hidden");
     renderGame.renderPieces();
 };
 

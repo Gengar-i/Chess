@@ -52,6 +52,10 @@ export const pieceClick = (el, piece) => {
 
             //attack
             attack(piece, activePiece, enPeasant);
+            if (checkIfEndGame()) {
+                blockUI();
+                return;
+            }
             toggleUndoButton(false);
             if (canUpgradePawn(piece)) upgradePawn(piece, activePiece, whiteTurn);
             
@@ -70,6 +74,10 @@ export const pieceClick = (el, piece) => {
 
             //move
             move(piece, activePiece);
+            if (checkIfEndGame()) {
+                blockUI();
+                return;
+            }
             if (canUpgradePawn(piece)) upgradePawn(piece, activePiece, whiteTurn);
 
             //castling
@@ -135,6 +143,11 @@ const checkIfCheck = () => {
         const check = findCheck(lastMoveSquare);
         return check;
     }
+    return false;
+};
+
+const checkIfEndGame = () => {
+    // hasPossibleMoves();
 };
 
 export const undoMove = (piece, activePiece, removedChild = null) => {
@@ -345,4 +358,10 @@ const castling = (long) => {
         if (long) updateRook("#a8", "#d8");
         else updateRook("#h8", "#f8");
     }
+};
+
+const blockUI = () => {
+    const backdrop = q(".winner-backdrop");
+    backdrop.classList.remove("hidden");
+    whiteTurn ? backdrop.firstChild.innerText = "white wins!" : backdrop.firstChild.innerText = "black wins!";
 };

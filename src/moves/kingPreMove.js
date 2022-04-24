@@ -16,27 +16,27 @@ export const kingPreMove = (isWhite, pieceLocation, startingPostions) => {
     let getAllOpponentsMoves = [];
     [...qAll(`[piece-type="${opponentColor}-pawn"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = pawnPreMove(!isWhite, position, null, null, false, true);
+        const attackMoves = pawnPreMove(!isWhite, position, null, null, false, null, true);
         attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
     });
     [...qAll(`[piece-type="${opponentColor}-knight"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = knightPreMove(!isWhite, position, false, true);
+        const attackMoves = knightPreMove(!isWhite, position, false, null, true);
         attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
     });
     [...qAll(`[piece-type="${opponentColor}-bishop"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = bishopPreMove(!isWhite, position, false, true);
+        const attackMoves = bishopPreMove(!isWhite, position, false, false, null, true);
         attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
     });
     [...qAll(`[piece-type="${opponentColor}-rook"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = rookPreMove(!isWhite, position, false, true);
+        const attackMoves = rookPreMove(!isWhite, position, false, false, null, true);
         attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
     });
     [...qAll(`[piece-type="${opponentColor}-queen"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = queenPreMove(!isWhite, position, false, true);
+        const attackMoves = queenPreMove(!isWhite, position, false, false, null, true);
         attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
     });
     const kingMovesWithoutKing = knightSquares.filter((square) => !getAllOpponentsMoves.includes(square));
