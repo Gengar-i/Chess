@@ -1,8 +1,9 @@
 import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
 
-export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, kingLocation = null, checkSquares = null, attack = false) => {
+export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, kingLocation = null, checkSquares = null, attack = false, findPossibleCheckMoves = false) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
+    let hasNotCheckMove = true;
     //moves
     const plusOneMove = isWhite ? q(`#${letter + (number + 1)}`) : q(`#${letter + (number - 1)}`);
 
@@ -19,7 +20,10 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
             if (square.hasChildNodes() || square === enPeasantSquare) {
                 if (kingLocation && square === kingLocation) check = true;
                 if (checkSquares) {
-                    if (checkSquares.includes(square) || enPeasantSquare) square.classList.add("piece-attack");
+                    if (checkSquares.includes(square) || enPeasantSquare) {
+                        hasNotCheckMove = false;
+                        square.classList.add("piece-attack");
+                    }
                 } else square.classList.add("piece-attack");
             }
         });
@@ -31,14 +35,23 @@ export const pawnPreMove = (isWhite, pieceLocation, isFirstMove, enPeasant, king
                 ? qAll(`#${letter + (number + 1)}, #${letter + (number + 2)}`)
                 : qAll(`#${letter + (number - 1)}, #${letter + (number - 2)}`);
             plusOneOrTwoMove.forEach((square) => {
-                if (checkSquares) {
-                    if (checkSquares.includes(square)) square.classList.add("piece-premove");
-                } else square.classList.add("piece-premove");
+                if (!square.firstChild) {
+                    if (checkSquares) {
+                        if (checkSquares.includes(square)) {
+                            hasNotCheckMove = false;
+                            square.classList.add("piece-premove");
+                        }
+                    } else square.classList.add("piece-premove");
+                }
             });
         } else {
             if (checkSquares) {
-                if (checkSquares.includes(plusOneMove)) plusOneMove.classList.add("piece-premove");
+                if (checkSquares.includes(plusOneMove)) {
+                    hasNotCheckMove = false;
+                    plusOneMove.classList.add("piece-premove");
+                }
             } else plusOneMove.classList.add("piece-premove");
         }
     }
+    if (findPossibleCheckMoves) return hasNotCheckMove;
 };

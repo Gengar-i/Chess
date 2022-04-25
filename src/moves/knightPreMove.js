@@ -1,8 +1,9 @@
 import { q, qAll, changeLetter, isOpponent } from "../../helpers.js";
 
-export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, checkSquares = null, attack = false) => {
+export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, checkSquares = null, attack = false, findPossibleCheckMoves = false) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
+    let hasNotCheckMove = true;
     const letters = [changeLetter(letter, 2, false), changeLetter(letter, 1, false), changeLetter(letter, 1, true), changeLetter(letter, 2, true)]
         .map((letter) => (letter.match(/[a-h]/)) ? letter : null);
     const numbers = [number + 2, number + 1, number - 1, number - 2]
@@ -25,10 +26,12 @@ export const knightPreMove = (isWhite, pieceLocation, kingLocation = null, check
             if (checkSquares.includes(square)) {
                 if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
                 else if (!square.firstChild) square.classList.add("piece-premove");
+                hasNotCheckMove = false;
             }
         } else {
             if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
             else if (!square.firstChild) square.classList.add("piece-premove");
         }
     });
+    if (findPossibleCheckMoves) return hasNotCheckMove;
 };

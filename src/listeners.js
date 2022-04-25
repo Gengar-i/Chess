@@ -3,7 +3,7 @@ import { showPreMoves } from "./moves.js";
 import { toggleChangeSideButton } from "../app.js";
 import { startingPostions } from "../config/startingPositions.js";
 import { whiteSide } from "../app.js";
-import { findCheck } from "./moves/movHelpers.js";
+import { findCheck, hasNoPossibleMoves } from "./moves/movHelpers.js";
 
 let clickedPiece = null;
 let clonedRemovedPiece = null;
@@ -52,12 +52,8 @@ export const pieceClick = (el, piece) => {
 
             //attack
             attack(piece, activePiece, enPeasant);
-            if (checkIfEndGame()) {
-                blockUI();
-                return;
-            }
             toggleUndoButton(false);
-            if (canUpgradePawn(piece)) upgradePawn(piece, activePiece, whiteTurn);
+            if (canUpgradePawn(piece)) upgradePawn(piece, activePiece);
             
             //other
             enPeasant = null;
@@ -68,17 +64,16 @@ export const pieceClick = (el, piece) => {
             updateStartingPostions();
             changeTurn();
 
+            if (checkIfEndGame(checkIfCheck())) {
+                return endGame();
+            }
         }
         if (piece.classList.contains("piece-premove")) {
             clickedPiece = piece;
 
             //move
-            move(piece, activePiece);
-            if (checkIfEndGame()) {
-                blockUI();
-                return;
-            }
-            if (canUpgradePawn(piece)) upgradePawn(piece, activePiece, whiteTurn);
+            move(piece, activePiece); 
+            if (canUpgradePawn(piece)) upgradePawn(piece, activePiece);
 
             //castling
             if (piece.classList.contains("long-castling") || piece.classList.contains("short-castling")) castling(piece.classList.contains("long-castling"));
@@ -95,7 +90,9 @@ export const pieceClick = (el, piece) => {
             highlightLastMove(piece, activePiece);
             updateStartingPostions();
             changeTurn();
-            
+            if (checkIfEndGame(checkIfCheck())) {
+                return endGame();
+            }
         }
         if (activePiece) {
             //unclick
@@ -111,7 +108,7 @@ export const pieceClick = (el, piece) => {
             startingPiece = piece;
             clickedPiece = piece;
             const pieceLocation = piece.getAttribute("id");
-            showPreMoves(pieceType, pieceLocation, startingPosItionsArray, enPeasant, checkIfCheck(whiteTurn));
+            showPreMoves(pieceType, pieceLocation, startingPosItionsArray, enPeasant, checkIfCheck());
         }
     }
 };
@@ -144,10 +141,6 @@ const checkIfCheck = () => {
         return check;
     }
     return false;
-};
-
-const checkIfEndGame = () => {
-    // hasPossibleMoves();
 };
 
 export const undoMove = (piece, activePiece, removedChild = null) => {
@@ -194,7 +187,7 @@ const canUpgradePawn = (piece) => {
     return false;
 };
 
-const upgradePawn = (piece, activePiece, whiteTurn) => {
+const upgradePawn = (piece, activePiece) => {
     const upgrade = q(".upgrade");
     //add new children (remove listeners)
     const upgradeArray = [...upgrade.children];
@@ -360,8 +353,24 @@ const castling = (long) => {
     }
 };
 
+//end-game
+const checkIfEndGame = (check) => {
+    if (check) {
+        return hasNoPossibleMoves(whiteTurn, check, startingPosItionsArray, enPeasant);
+    }
+    return false;
+};
+
 const blockUI = () => {
     const backdrop = q(".winner-backdrop");
     backdrop.classList.remove("hidden");
-    whiteTurn ? backdrop.firstChild.innerText = "white wins!" : backdrop.firstChild.innerText = "black wins!";
+    toggleUndoButton(true);
+    whiteTurn ? backdrop.firstChild.innerText = "black wins!" : backdrop.firstChild.innerText = "white wins!";
+};
+
+const endGame = () => {
+    qAll(".piece-box").forEach((piecev) => {
+        piecev.classList.remove("piece-clicked", "piece-premove", "piece-attack", "check-king", "long-castling", "short-castling");
+    });
+    blockUI();
 };

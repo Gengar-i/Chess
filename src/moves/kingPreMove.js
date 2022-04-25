@@ -6,7 +6,7 @@ import { bishopPreMove } from "./bishopPreMove.js";
 import { rookPreMove } from "./rookPreMove.js";
 import { queenPreMove } from "./queenPreMove.js";
 
-export const kingPreMove = (isWhite, pieceLocation, startingPostions) => {
+export const kingPreMove = (isWhite, pieceLocation, startingPostions, findPossibleCheckMoves = false) => {
     //removes all incorrect moves
     const opponentColor = isWhite ? "black" : "white";
     const opponentKing = q(`[piece-type="${opponentColor}-king"]`);
@@ -21,23 +21,31 @@ export const kingPreMove = (isWhite, pieceLocation, startingPostions) => {
     });
     [...qAll(`[piece-type="${opponentColor}-knight"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = knightPreMove(!isWhite, position, false, null, true);
-        attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        if (position) {
+            const attackMoves = knightPreMove(!isWhite, position, false, null, true);
+            attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        }
     });
     [...qAll(`[piece-type="${opponentColor}-bishop"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = bishopPreMove(!isWhite, position, false, false, null, true);
-        attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        if (position) {
+            const attackMoves = bishopPreMove(!isWhite, position, false, false, null, true);
+            attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        }
     });
     [...qAll(`[piece-type="${opponentColor}-rook"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = rookPreMove(!isWhite, position, false, false, null, true);
-        attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        if (position) {
+            const attackMoves = rookPreMove(!isWhite, position, false, false, null, true);
+            attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        }
     });
     [...qAll(`[piece-type="${opponentColor}-queen"]`)].forEach((child) => {
         const position = child.parentNode.getAttribute("id");
-        const attackMoves = queenPreMove(!isWhite, position, false, false, null, true);
-        attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        if (position) {
+            const attackMoves = queenPreMove(!isWhite, position, false, false, null, true);
+            attackMoves.forEach((attack) => {if(attack) getAllOpponentsMoves.push(attack);});
+        }
     });
     const kingMovesWithoutKing = knightSquares.filter((square) => !getAllOpponentsMoves.includes(square));
     const kingCanMove = kingMovesWithoutKing.filter((square) => !oponentKingSquares.includes(square));
@@ -84,8 +92,16 @@ export const kingPreMove = (isWhite, pieceLocation, startingPostions) => {
     }
 
     //moves
+    let findCheckMoves = [];
     kingCanMove.forEach((square) => {
-        if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
-        else if (!square.firstChild) square.classList.add("piece-premove");
+        if (square.firstChild && isOpponent(square, isWhite)) {
+            square.classList.add("piece-attack");
+            findCheckMoves.push(square);
+        }
+        else if (!square.firstChild) {
+            square.classList.add("piece-premove");
+            findCheckMoves.push(square);
+        }
     });
+    if (findPossibleCheckMoves) return findCheckMoves;
 };

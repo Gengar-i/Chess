@@ -12,7 +12,6 @@ import { initialGame } from "../config/initialGame.js";
 export const showPreMoves = (type, pieceLocation, startingPostions, enPeasant, isCheck, kingLocation = null, checker = false) => {
     const isStartingPosition = startingPostions.find((sp) => sp.position === pieceLocation);
     const isFirstMove = isStartingPosition ? isStartingPosition.isFirstMove : false;
-    console.log(isCheck, kingLocation, checker);
     if (!isCheck) {
         if (type.includes("pawn")) {
             if (checker && kingLocation) return [];
@@ -53,7 +52,6 @@ export const showPreMoves = (type, pieceLocation, startingPostions, enPeasant, i
         const checkingPieceType = checkingPiece.firstChild.getAttribute("piece-type");
         const checkSquaresWithoutPostion = showPreMoves(checkingPieceType, checkingPiecePostion, [], null, false, king.parentNode, true);
         const checkSquares = [...checkSquaresWithoutPostion, q(`#${checkingPiecePostion}`)];
-        console.log(checkingPiece, checkingPiecePostion, checkingPieceType, checkSquares);
         if (type.includes("pawn")) {
             pawnPreMove(type.includes("white"), pieceLocation, isFirstMove, enPeasant, null, checkSquares);
         }

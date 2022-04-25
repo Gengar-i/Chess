@@ -1,5 +1,11 @@
 import { q, qAll, changeLetter, isOpponent, letterPlace } from "../../helpers.js";
 import { showPreMoves } from "../moves.js";
+import { pawnPreMove } from "./pawnPreMove.js";
+import { knightPreMove } from "./knightPreMove.js";
+import { bishopPreMove } from "./bishopPreMove.js";
+import { rookPreMove } from "./rookPreMove.js";
+import { queenPreMove } from "./queenPreMove.js";
+import { kingPreMove } from "./kingPreMove.js";
 
 const iteration = (array, pieceLocation, increment = true, letterson = true) => {
     const letter = pieceLocation.split("")[0];
@@ -17,7 +23,8 @@ const iteration = (array, pieceLocation, increment = true, letterson = true) => 
     return array.map((num) => (num >= 1 && num <= 8) ? num : null);
 };
 
-const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack) => {
+const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack, findPossibleCheckMoves) => {
+    let hasNotCheckMove = true;
     const squares = [...squares1, ...squares2, ...squares3, ...squares4];
     const querySquares = squares.map((square, index) => ((index + 1 !== squares.length) ? "#" + square + ", " : "#" + square)).join("");
     const movementSquares = querySquares ? qAll(querySquares) : [];
@@ -28,15 +35,17 @@ const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation,
             if (checkMoves.includes(square)) {
                 if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
                 else if (!square.firstChild) square.classList.add("piece-premove");
+                hasNotCheckMove = false;
             }
         } else {
             if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
             else if (!square.firstChild) square.classList.add("piece-premove");
         }
     });
+    if (findPossibleCheckMoves) return hasNotCheckMove;
 };
 
-export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack) => {
+export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack, findPossibleCheckMoves) => {
     const addDiagonalSquares = (array, letters, numbers) => {
         for (let i = 0; i < 7 ; i++) {
             if (letters[i] && numbers[i]) array.push(letters[i] + numbers[i]);
@@ -68,10 +77,10 @@ export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, 
     squares3 = addDiagonalSquares(squares3, letterNeg, numbersPos);
     squares4 = addDiagonalSquares(squares4, letterNeg, numbersNeg);
     if (checker) return findDiagonalSquares(pieceLocation, kingLocation);
-    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack);
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack, findPossibleCheckMoves);
 };
 
-export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack) => {
+export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack, findPossibleCheckMoves) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     const addLinearSquares = (array, iterableArr, char) => {
@@ -109,7 +118,7 @@ export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, ch
     squares3 = addLinearSquares(squares3, numbersNeg, letter, false); //bottom
     squares4 = addLinearSquares(squares4, letterNeg, number, false); //left
     if (checker) return findLinearSquares(pieceLocation, kingLocation);
-    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack);
+    return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack, findPossibleCheckMoves);
 };
 
 export const kingMovement = (pieceLocation) => {
@@ -193,7 +202,6 @@ const findLinearSquares = (checkerLocation, kingLocation) => {
     let numbers = [];
     if (horizontallyCheck) letters = iteration(letters, checkerLocation, positive);
     else numbers = iteration(numbers, checkerLocation, positive, false);
-    console.log(letters, numbers);
     let moves = [];
     for (let i = 0; i < 7 ; i++) {
         if (!horizontallyCheck) {
@@ -211,4 +219,53 @@ const findLinearSquares = (checkerLocation, kingLocation) => {
     const querySquares = moves.map((square, index) => ((index + 1 !== moves.length) ? "#" + square + ", " : "#" + square)).join("");
     const movementSquares = querySquares ? qAll(querySquares) : [];
     return movementSquares;
+};
+
+export const hasNoPossibleMoves = (whiteTurn, check, startingPostions, enPeasant) => {
+    let cannotMove = [];
+    const color = whiteTurn ? "white" : "black";
+    const checkingPiece = q(".piece-endmove");
+    const checkingPiecePostion = checkingPiece.getAttribute("id");
+    const checkingPieceType = checkingPiece.firstChild.getAttribute("piece-type");
+    const isWhiteChecking = checkingPieceType.includes("white");
+    const king = isWhiteChecking ? q(`[piece-type="black-king"]`) : q(`[piece-type="white-king"]`);
+
+    const checkSquaresWithoutPostion = showPreMoves(checkingPieceType, checkingPiecePostion, [], null, false, king.parentNode, true);
+    const checkSquares = [...checkSquaresWithoutPostion, q(`#${checkingPiecePostion}`)];
+    [...qAll(`[piece-type^="${color}"]`)].forEach((piece) => {
+        const position = piece.parentNode.getAttribute("id");
+        const pieceType = piece.getAttribute("piece-type");
+        const isStartingPosition = startingPostions.find((sp) => sp.position === position);
+        const isFirstMove = isStartingPosition ? isStartingPosition.isFirstMove : false;
+        if (position) {
+            if (pieceType.includes("pawn")) {
+                const pawnHasNoMove = pawnPreMove(pieceType.includes("white"), position, isFirstMove, enPeasant, null, checkSquares, false, true);
+                cannotMove.push(pawnHasNoMove);
+            }
+            if (pieceType.includes("knight")) {
+                const knightHasNoMove = knightPreMove(pieceType.includes("white"), position, null, checkSquares, false, true);
+                cannotMove.push(knightHasNoMove);
+            }
+            if (pieceType.includes("bishop")) {
+                const bishopHasNoMove = bishopPreMove(pieceType.includes("white"), position, null, false, checkSquares, false, true);
+                cannotMove.push(bishopHasNoMove);
+            }
+            if (pieceType.includes("rook")) {
+                const rookHasNoMove = rookPreMove(pieceType.includes("white"), position, null, false, checkSquares, false, true);
+                cannotMove.push(rookHasNoMove);
+            }
+            if (pieceType.includes("queen")) {
+                const queenHasNoMove = queenPreMove(pieceType.includes("white"), position, null, false, checkSquares, false, true);
+                cannotMove.push(queenHasNoMove);
+            }
+            if (pieceType.includes("king")) {
+                const kingPossibleMoves = kingPreMove(pieceType.includes("white"), position, startingPostions, true);
+                if (kingPossibleMoves.length > 0) cannotMove.push(false)
+                else cannotMove.push(true)
+            }
+        }
+    });
+    
+    const hasMove = cannotMove.includes(false);
+    return !hasMove;
 };
