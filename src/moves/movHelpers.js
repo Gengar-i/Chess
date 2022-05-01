@@ -7,7 +7,8 @@ import { rookPreMove } from "./rookPreMove.js";
 import { queenPreMove } from "./queenPreMove.js";
 import { kingPreMove } from "./kingPreMove.js";
 
-const iteration = (array, pieceLocation, increment = true, letterson = true) => {
+const iteration = (pieceLocation, increment = true, letterson = true) => {
+    const array = [];
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
     for (let i = 1; i <= 7; i++) {
@@ -46,36 +47,30 @@ const addMoves = (squares1, squares2, squares3, squares4, isWhite, kingLocation,
 };
 
 export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack, findPossibleCheckMoves) => {
-    const addDiagonalSquares = (array, letters, numbers) => {
+    const addDiagonalSquares = (letters, numbers) => {
+        const array = [];
         for (let i = 0; i < 7 ; i++) {
             if (letters[i] && numbers[i]) array.push(letters[i] + numbers[i]);
         }
         const findenIndexen = array.findIndex((tile) => {
             const tilemans = q(`#${tile}`);
-            return tilemans.firstChild;
+            const color = isWhite ? "black" : "white";
+            const isKing = tilemans.firstChild && tilemans.firstChild.getAttribute("piece-type").includes(`${color}-king`);
+            return tilemans.firstChild && !isKing;
         });
         if (findenIndexen !== -1) {
-            const oponent = isOpponent(q(`#${array[findenIndexen]}`), isWhite);
-            return oponent ? array.slice(0, findenIndexen + 1) : array.slice(0, findenIndexen);
+            return array.slice(0, findenIndexen + 1);
         }
         return array;
     };
-    let numbersPos = [];
-    let numbersNeg = [];
-    let letterPos = [];
-    let letterNeg = [];
-    letterPos = iteration(letterPos, pieceLocation, true);
-    numbersPos = iteration(numbersPos, pieceLocation, true, false);
-    letterNeg = iteration(letterNeg, pieceLocation, false);
-    numbersNeg = iteration(numbersNeg, pieceLocation, false, false);
-    let squares1 = [];
-    let squares2 = [];
-    let squares3 = [];
-    let squares4 = [];
-    squares1 = addDiagonalSquares(squares1, letterPos, numbersPos);
-    squares2 = addDiagonalSquares(squares2, letterPos, numbersNeg);
-    squares3 = addDiagonalSquares(squares3, letterNeg, numbersPos);
-    squares4 = addDiagonalSquares(squares4, letterNeg, numbersNeg);
+    const numbersPos = iteration(pieceLocation, true, false);
+    const numbersNeg = iteration(pieceLocation, false, false);
+    const letterPos = iteration(pieceLocation, true);
+    const letterNeg = iteration(pieceLocation, false); 
+    const squares1 = addDiagonalSquares(letterPos, numbersPos);
+    const squares2 = addDiagonalSquares(letterPos, numbersNeg);
+    const squares3 = addDiagonalSquares(letterNeg, numbersPos);
+    const squares4 = addDiagonalSquares(letterNeg, numbersNeg);
     if (checker) return findDiagonalSquares(pieceLocation, kingLocation);
     return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack, findPossibleCheckMoves);
 };
@@ -83,7 +78,8 @@ export const diagonalMovement = (isWhite, pieceLocation, kingLocation, checker, 
 export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, checkMoves, attack, findPossibleCheckMoves) => {
     const letter = pieceLocation.split("")[0];
     const number = Number(pieceLocation.split("")[1]);
-    const addLinearSquares = (array, iterableArr, char) => {
+    const addLinearSquares = (iterableArr, char) => {
+        const array = [];
         for (let i = 0; i < 7 ; i++) {
             if (isNaN(char)) {
                 if (char && iterableArr[i]) array.push(char + iterableArr[i]);
@@ -93,30 +89,23 @@ export const linearMovement = (isWhite, pieceLocation, kingLocation, checker, ch
         }
         const findenIndexen = array.findIndex((tile) => {
             const tilemans = q(`#${tile}`);
-            return tilemans.firstChild;
+            const color = isWhite ? "black" : "white";
+            const isKing = tilemans.firstChild && tilemans.firstChild.getAttribute("piece-type").includes(`${color}-king`);
+            return tilemans.firstChild && !isKing;
         });
         if (findenIndexen !== -1) {
-            const oponent = isOpponent(q(`#${array[findenIndexen]}`), isWhite);
-            return oponent ? array.slice(0, findenIndexen + 1) : array.slice(0, findenIndexen);
+            return array.slice(0, findenIndexen + 1);
         }
         return array;
     };
-    let numbersPos = [];
-    let numbersNeg = [];
-    let letterPos = [];
-    let letterNeg = [];
-    letterPos = iteration(letterPos, pieceLocation, true);
-    numbersPos = iteration(numbersPos, pieceLocation, true, false);
-    letterNeg = iteration(letterNeg, pieceLocation, false);
-    numbersNeg = iteration(numbersNeg, pieceLocation, false, false);
-    let squares1 = [];
-    let squares2 = [];
-    let squares3 = [];
-    let squares4 = [];
-    squares1 = addLinearSquares(squares1, numbersPos, letter); //up
-    squares2 = addLinearSquares(squares2, letterPos, number); //right
-    squares3 = addLinearSquares(squares3, numbersNeg, letter, false); //bottom
-    squares4 = addLinearSquares(squares4, letterNeg, number, false); //left
+    const letterPos = iteration(pieceLocation, true);
+    const numbersPos = iteration(pieceLocation, true, false);
+    const letterNeg = iteration(pieceLocation, false);
+    const numbersNeg = iteration(pieceLocation, false, false);
+    const squares1 = addLinearSquares(numbersPos, letter); //up
+    const squares2 = addLinearSquares(letterPos, number); //right
+    const squares3 = addLinearSquares(numbersNeg, letter, false); //bottom
+    const squares4 = addLinearSquares(letterNeg, number, false); //left
     if (checker) return findLinearSquares(pieceLocation, kingLocation);
     return addMoves(squares1, squares2, squares3, squares4, isWhite, kingLocation, checkMoves, attack, findPossibleCheckMoves);
 };
@@ -168,10 +157,8 @@ const findDiagonalSquares = (checkerLocation, kingLocation) => {
     if (letterPlace(pieceLetter) > letterPlace(kingLetter)) positiveLetters = false;
     if (pieceNumber > kingNumber) positiveNumbers = false;
 
-    let letters = [];
-    let numbers = [];
-    letters = iteration(letters, checkerLocation, positiveLetters);
-    numbers = iteration(numbers, checkerLocation, positiveNumbers, false);
+    const letters = iteration(checkerLocation, positiveLetters);
+    const numbers = iteration(checkerLocation, positiveNumbers, false);
     let moves = [];
     for (let i = 0; i < 7 ; i++) {
         if (letters[i] && numbers[i]) {
@@ -200,8 +187,8 @@ const findLinearSquares = (checkerLocation, kingLocation) => {
     
     let letters = [];
     let numbers = [];
-    if (horizontallyCheck) letters = iteration(letters, checkerLocation, positive);
-    else numbers = iteration(numbers, checkerLocation, positive, false);
+    if (horizontallyCheck) letters = iteration(checkerLocation, positive);
+    else numbers = iteration(checkerLocation, positive, false);
     let moves = [];
     for (let i = 0; i < 7 ; i++) {
         if (!horizontallyCheck) {
@@ -268,4 +255,176 @@ export const hasNoPossibleMoves = (whiteTurn, check, startingPostions, enPeasant
     
     const hasMove = cannotMove.includes(false);
     return !hasMove;
+};
+
+export const connectedWithKing = (type, pieceLocation, isFirstMove) => {
+    if (type.includes("king")) return false;
+    const isWhite = type.includes("white");
+    const king = isWhite ? q(`[piece-type="white-king"]`) : q(`[piece-type="black-king"]`);
+    const kingLocation = king.parentNode.getAttribute("id");
+    const letter = pieceLocation.split("")[0];
+    const number = Number(pieceLocation.split("")[1]);
+    const kingLetter = kingLocation.split("")[0];
+    const kingNumber = Number(kingLocation.split("")[1]);
+    const sameLetter = letter === kingLetter;
+    const sameNumber = number === kingNumber;
+    const diagonalKingInDanger = (squares) => {
+        const isOnLine = squares.some((tile) => tile.includes(pieceLocation));
+        if (!isOnLine) return false;
+        const movement = [];
+        squares.forEach((square) => movement.push(q(`#${square}`)));
+        const firstPiece = movement.find((square) => square.firstChild);
+        const secondPiece = movement.find((square) => (square.firstChild && square !== firstPiece));
+        if (!(firstPiece.getAttribute("id") === pieceLocation)) return false;
+        if (!secondPiece) return false;
+        if (!isOpponent(secondPiece, isWhite)) return false;
+        const opponentPawn = secondPiece.firstChild.getAttribute("piece-type");
+        const isBishopOrQueen = type.includes("queen") || type.includes("bishop");
+        const bishopOrQueen = opponentPawn.includes("queen") || opponentPawn.includes("bishop");
+        if (!bishopOrQueen) return false;
+        const filteredFirstPiece = movement.filter((square) => square !== firstPiece);
+        const index = filteredFirstPiece.findIndex((tile) => tile === secondPiece);
+        const slicedMovement = filteredFirstPiece.slice(0, index + 1);
+        if (isBishopOrQueen) {
+            slicedMovement.forEach((square) => {
+                if (square) {
+                    if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+                    else if (!square.firstChild) square.classList.add("piece-premove");
+                }
+            });
+        }
+        return true;
+    };
+    if (sameLetter) {
+        const positiveNumber = number < kingNumber;
+        const pawnToKingLenght = Math.abs(number - kingNumber) - 1;
+        let isKingOnLine = true;
+        if (pawnToKingLenght) {
+            const pawnToKingLocations = [];
+            for (let i = 1; i <= pawnToKingLenght; i++) {
+                const position = positiveNumber ? letter + (number + i) : letter + (kingNumber + i);
+                const tile = q(`#${position}`)
+                pawnToKingLocations.push(tile);
+            }
+            isKingOnLine = pawnToKingLocations.every((tile) => !tile.firstChild);
+        }
+        if (!isKingOnLine) return false;
+        // find if first enemy piece is queen/rook
+        const pawnToEndLocations = [];
+        const pawnToEndLenght = positiveNumber ? number - 1 : 8 - number;
+        for (let i = 1; i <= pawnToEndLenght; i++) {
+            const position = positiveNumber ? letter + (number - i) : letter + (number + i);
+            const tile = q(`#${position}`)
+            pawnToEndLocations.push(tile);
+        }
+        const pawn = pawnToEndLocations.find((tile) => tile.firstChild);
+        if (!pawn) return false;
+        if (!isOpponent(pawn, isWhite)) return false;
+        const opponentPawn = pawn.firstChild.getAttribute("piece-type");
+        const isRookOrQueen = type.includes("queen") || type.includes("rook");
+        const isPawn = type.includes("pawn");
+        const rookOrQueen = opponentPawn.includes("queen") || opponentPawn.includes("rook");
+        const index = pawnToEndLocations.findIndex((tile) => tile.firstChild);
+        const pawnToEndLocationsSliced = pawnToEndLocations.slice(0, index + 1);
+        if (!rookOrQueen) return false;
+        if (isRookOrQueen) {
+            pawnToEndLocationsSliced.forEach((square) => {
+                if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+                else if (!square.firstChild) square.classList.add("piece-premove");
+            });
+        }
+        if (isPawn) {
+            const plusOneMove = isWhite ? q(`#${letter + (number + 1)}`) : q(`#${letter + (number - 1)}`);
+            const collide = plusOneMove && plusOneMove.firstChild;
+            if (!collide) {
+                if (isFirstMove) {
+                    const plusOneOrTwoMove = isWhite
+                        ? qAll(`#${letter + (number + 1)}, #${letter + (number + 2)}`)
+                        : qAll(`#${letter + (number - 1)}, #${letter + (number - 2)}`);
+                    plusOneOrTwoMove.forEach((square) => {
+                        if (!square.firstChild) square.classList.add("piece-premove");
+                    });
+                } else {
+                    plusOneMove.classList.add("piece-premove");
+                }
+            }
+        }
+        return true;
+    }
+    if (sameNumber) {
+        const positiveLetter = letterPlace(letter) < letterPlace(kingLetter);
+        const pawnToKingLenght = Math.abs(letterPlace(letter) - letterPlace(kingLetter)) - 1;
+        let isKingOnLine = true;
+        if (pawnToKingLenght) {
+            const pawnToKingLocations = [];
+            for (let i = 1; i <= pawnToKingLenght; i++) {
+                const position = positiveLetter ? changeLetter(letter, i, true) + number : changeLetter(kingLetter, i, true) + number;
+                const tile = q(`#${position}`);
+                pawnToKingLocations.push(tile);
+            }
+            isKingOnLine = pawnToKingLocations.every((tile) => !tile.firstChild);
+        }
+        if (!isKingOnLine) return false;
+        // find if first enemy piece is queen/rook
+        const pawnToEndLocations = [];
+        const pawnToEndLenght = positiveLetter ? letterPlace(letter) : 8 - (letterPlace(letter) + 1);
+        for (let i = 1; i <= pawnToEndLenght; i++) {
+            const position = positiveLetter ? changeLetter(letter, i, false) + number : changeLetter(letter, i, true) + number;
+            const tile = q(`#${position}`)
+            pawnToEndLocations.push(tile);
+        }
+        const pawn = pawnToEndLocations.find((tile) => tile.firstChild);
+        if (!pawn) return false;
+        if (!isOpponent(pawn, isWhite)) return false;
+        const opponentPawn = pawn.firstChild.getAttribute("piece-type");
+        const isRookOrQueen = type.includes("queen") || type.includes("rook");
+        const rookOrQueen = opponentPawn.includes("queen") || opponentPawn.includes("rook");
+        const index = pawnToEndLocations.findIndex((tile) => tile.firstChild);
+        const pawnToEndLocationsSliced = pawnToEndLocations.slice(0, index + 1);
+        if (!rookOrQueen) return false;
+        if (isRookOrQueen) {
+            pawnToEndLocationsSliced.forEach((square) => {
+                if (square.firstChild && isOpponent(square, isWhite)) square.classList.add("piece-attack");
+                else if (!square.firstChild) square.classList.add("piece-premove");
+            });
+        }
+        return true;
+    }
+    //diagonal scenario
+    if (!sameLetter && !sameNumber) {
+        const positiveNumber = number > kingNumber;
+        const positiveLetter = letterPlace(letter) > letterPlace(kingLetter);
+        const letterPos = iteration(kingLocation, true);
+        const numbersPos = iteration(kingLocation, true, false);
+        const letterNeg = iteration(kingLocation, false);
+        const numbersNeg = iteration(kingLocation, false, false);
+        const addDiagonalSquares = (letters, numbers) => {
+            const array = [];
+            for (let i = 0; i < 7 ; i++) {
+                if (letters[i] && numbers[i]) array.push(letters[i] + numbers[i]);
+            }
+            return array;
+        }
+        //up-right
+        if (positiveNumber && positiveLetter) {
+            const squares1 = addDiagonalSquares(letterPos, numbersPos);
+            return diagonalKingInDanger(squares1); 
+        }
+        //up-left
+        else if (positiveNumber && !positiveLetter) {
+            const squares3 = addDiagonalSquares(letterNeg, numbersPos);
+            return diagonalKingInDanger(squares3);
+        }
+        //down-right
+        else if (!positiveNumber && positiveLetter) {
+            const squares2 = addDiagonalSquares(letterPos, numbersNeg);
+            return diagonalKingInDanger(squares2);
+        }
+        //down-left
+        else {
+            const squares4 = addDiagonalSquares(letterNeg, numbersNeg);
+            return diagonalKingInDanger(squares4);  
+        }
+    }
+    return false;
 };

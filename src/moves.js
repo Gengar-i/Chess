@@ -5,6 +5,7 @@ import { bishopPreMove } from "./moves/bishopPreMove.js";
 import { rookPreMove } from "./moves/rookPreMove.js";
 import { queenPreMove } from "./moves/queenPreMove.js";
 import { kingPreMove } from "./moves/kingPreMove.js";
+import  { connectedWithKing } from "./moves/movHelpers.js";
 import { initialGame } from "../config/initialGame.js";
 
 // given kingLocation we want to know if there is check so returning true of false depending on where piece can attack
@@ -13,31 +14,32 @@ export const showPreMoves = (type, pieceLocation, startingPostions, enPeasant, i
     const isStartingPosition = startingPostions.find((sp) => sp.position === pieceLocation);
     const isFirstMove = isStartingPosition ? isStartingPosition.isFirstMove : false;
     if (!isCheck) {
+        const kingWillBeInTrouble = connectedWithKing(type, pieceLocation, isFirstMove);
         if (type.includes("pawn")) {
             if (checker && kingLocation) return [];
             if (kingLocation) return pawnPreMove(type.includes("white"), pieceLocation, isFirstMove, enPeasant, kingLocation);
-            pawnPreMove(type.includes("white"), pieceLocation, isFirstMove, enPeasant);
+            if (!kingWillBeInTrouble) pawnPreMove(type.includes("white"), pieceLocation, isFirstMove, enPeasant);
         }
         if (type.includes("knight")) {
             if (checker && kingLocation) return [];
             if (kingLocation) return knightPreMove(type.includes("white"), pieceLocation, kingLocation);
-            knightPreMove(type.includes("white"), pieceLocation);
+            if (!kingWillBeInTrouble) knightPreMove(type.includes("white"), pieceLocation);
         }
         if (type.includes("bishop")) {
             if (kingLocation || checker) return bishopPreMove(type.includes("white"), pieceLocation, kingLocation, checker);
-            bishopPreMove(type.includes("white"), pieceLocation);
+            if (!kingWillBeInTrouble) bishopPreMove(type.includes("white"), pieceLocation);
         }
         if (type.includes("rook")) {
             if (kingLocation || checker) return rookPreMove(type.includes("white"), pieceLocation, kingLocation, checker);
-            rookPreMove(type.includes("white"), pieceLocation);
+            if (!kingWillBeInTrouble) rookPreMove(type.includes("white"), pieceLocation);
         }
         if (type.includes("queen")) {
             if (kingLocation || checker) return queenPreMove(type.includes("white"), pieceLocation, kingLocation, checker);
-            queenPreMove(type.includes("white"), pieceLocation);
+            if (!kingWillBeInTrouble) queenPreMove(type.includes("white"), pieceLocation);
         }
         if (type.includes("king")) {
             if (kingLocation) return false;
-            kingPreMove(type.includes("white"), pieceLocation, startingPostions);
+            if (!kingWillBeInTrouble) kingPreMove(type.includes("white"), pieceLocation, startingPostions);
         }
     }
     if (isCheck) {
