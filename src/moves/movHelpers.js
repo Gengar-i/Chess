@@ -268,6 +268,7 @@ export const connectedWithKing = (type, pieceLocation, isFirstMove) => {
     const kingNumber = Number(kingLocation.split("")[1]);
     const sameLetter = letter === kingLetter;
     const sameNumber = number === kingNumber;
+    const isPawn = type.includes("pawn");
     const diagonalKingInDanger = (squares) => {
         const isOnLine = squares.some((tile) => tile.includes(pieceLocation));
         if (!isOnLine) return false;
@@ -285,6 +286,13 @@ export const connectedWithKing = (type, pieceLocation, isFirstMove) => {
         const filteredFirstPiece = movement.filter((square) => square !== firstPiece);
         const index = filteredFirstPiece.findIndex((tile) => tile === secondPiece);
         const slicedMovement = filteredFirstPiece.slice(0, index + 1);
+        if (isPawn) {
+            const findFirstPieceIndex = movement.findIndex((tile) => tile === firstPiece);
+            const sliced = movement.slice(findFirstPieceIndex + 1)[0];
+            if (sliced.firstChild) {
+                if (sliced.firstChild && isOpponent(sliced, isWhite)) sliced.classList.add("piece-attack");
+            }
+        }
         if (isBishopOrQueen) {
             slicedMovement.forEach((square) => {
                 if (square) {
@@ -322,7 +330,6 @@ export const connectedWithKing = (type, pieceLocation, isFirstMove) => {
         if (!isOpponent(pawn, isWhite)) return false;
         const opponentPawn = pawn.firstChild.getAttribute("piece-type");
         const isRookOrQueen = type.includes("queen") || type.includes("rook");
-        const isPawn = type.includes("pawn");
         const rookOrQueen = opponentPawn.includes("queen") || opponentPawn.includes("rook");
         const index = pawnToEndLocations.findIndex((tile) => tile.firstChild);
         const pawnToEndLocationsSliced = pawnToEndLocations.slice(0, index + 1);
