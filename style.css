@@ -321,4 +321,17 @@ body {
         height: 20px;
         font-size: 11px;
     }
+    body {
+        flex-direction: column;
+    }
+    #actions {
+        width: 100%;
+        margin: 40px 0;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    #actions > button {
+        margin: 0 10px
+    }
 }
